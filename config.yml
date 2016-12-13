@@ -1,0 +1,41 @@
+############################################
+#            vlt. Musik 2.0                #
+#              by Mondanzo                 #
+#      licensed under the MIT-license      #
+############################################
+#            CONFIGURATION FILE            #
+############################################
+
+# Replace the example Token with YOUR token otherwise the Bot won't work!  [String]
+Token: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+# Enter here the Opus File, On Windows it is usally libopus-0.dll on Linux it is usally libopus.so.0 [String]
+Opusfile: "libopus-0.dll"
+
+# Set the Prefix of the Bot [String]
+Prefix: "??"
+
+# Please enter here the Role a User need for the Admin Commands [String]
+AdminRole: "DJ"
+
+# Enable Sites to use songs from. Split them by ; Example (http://youtube.com/;https://soundcloud.com/) [String]
+# Leave it empty to allow every site!
+AllowedSites: ""
+
+# If you want that your bot restarts on a crash then set this to True! [True/False]
+AutoReconnect: True
+
+# Base Volume; Here you can change the default Base Volume! [Float]
+Volume: 1.0
+
+# Required Skips; Change the number to change the value to divide. [Int]
+ReqSkips: 2
+###################
+# Autojoin System #
+###################
+
+# Activate the Autojoin Feature (Instable) [True/False]
+Autojoin: False
+
+# Set the ID of the Voice Channel to use Autojoin[String/ID]
+AutojoinChannel: "000000000000000"
