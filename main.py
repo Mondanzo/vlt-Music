@@ -1,8 +1,10 @@
+# -*- coding: UTF-8 -*-
 import discord
 import yaml
 import asyncio
 import utils
 import music
+import time
 from log import Logger
 
 Reconnect = False
@@ -85,12 +87,15 @@ class Main(discord.Client):
             self.log.print("Last Streamplayer wasn't done! Stopping it now!")
             self.stream_player.stop()
         next_song = await self.queue.get_next()
-        print(next_song)
         self.stream_player = next_song.player[0]
+        self.timer = time.clock()
         setattr(self.stream_player, "after", self._next_song)
         self.log.print("Start playing song...")
         self.is_playing = True
         self.stream_player.volume = self.volume
+        await self.change_presence(status=discord.Status.online,
+                                   game=discord.Game(name=self.stream_player.title, url=self.stream_player.url,
+                                                     type=1))
         self.stream_player.start()
 
     # Next Song
@@ -109,6 +114,13 @@ class Main(discord.Client):
                 pass
         else:
             self.is_playing = False
+            coru = self.change_presence(status=discord.Status.idle, game=discord.Game())
+            fat = asyncio.run_coroutine_threadsafe(coru, self.loop)
+            try:
+                fat.result()
+            except:
+                # an error happened sending the message
+                pass
 
     # Init Function
     def __init__(self):
@@ -149,8 +161,8 @@ class Main(discord.Client):
         if msg.content.startswith(self.p) or msg.author == self.user:
             self.log.print("[CHATLOG] ({1}) [{2}] <{3}> {4}".format(msg.timestamp, msg.server.name, msg.channel.name,
                                                                     msg.author.display_name, msg.content))
-        args = msg.content.lower().split()
-        cmd = args[0]
+        args = msg.content.split()
+        cmd = args[0].lower()
         del(args[0])
 
         # User commands without Voice Client
@@ -215,7 +227,7 @@ Admin Commands:
                                 await self.ddelete_message(
                                     await super().send_message(msg.channel,
                                                                "Added your Song {} successfully! {}".format(
-                                                                   song.title,
+                                                                   song.title[0],
                                                                    msg.author.mention)))
                     else:
                         song = await self.queue.add(args[0], self.voiceClient, msg.author)
@@ -226,7 +238,7 @@ Admin Commands:
                             await self.ddelete_message(
                                 await super().send_message(msg.channel,
                                                            "Added your Song {} successfully! {}".format(
-                                                               song.title,
+                                                               song.title[0],
                                                                msg.author.mention)))
                         else:
                             await self.delete_message(msg)
@@ -245,9 +257,9 @@ Admin Commands:
                     queue = ""
                     number = 1
                     for item in self.queue.get():
-                        queue += "\n{0}. **{1}** by *{2}*, submitted by {3}\n".format(number, item.title[0],
-                                                                                      item.uploader[0],
-                                                                                      item.user[0])
+                        queue += "\n{0}. **{1}** by *{2}*, submitted by __{3}__\n".format(number, item.title[0],
+                                                                                          item.uploader[0],
+                                                                                          item.user[0])
                         number += 1
                     await self.ddelete_message(
                         await super().send_message(msg.channel, "__**[Queue]**__\n{}".format(queue)))
@@ -272,7 +284,6 @@ Admin Commands:
                                                                               self.stream_player.title,
                                                                               self.stream_player.uploader)))
 
-
         # ############## #
         # OnReady Method #
         # ############## #
@@ -287,6 +298,10 @@ Admin Commands:
             self.log.print("[WARNING] You're Bot isn't connected to any server! Why?")
         await self._auto_join()
         self.role = self._get_admin_role()
+        await self.change_presence(status=discord.Status.idle, game=discord.Game())
+        # ############# #
+        # Advertisement #
+        # ############# #
 
 Main()
 while Reconnect:

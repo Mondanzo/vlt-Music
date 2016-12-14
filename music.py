@@ -1,4 +1,5 @@
 import discord
+import youtube_dl
 from asyncio import Queue
 from random import shuffle
 
@@ -10,11 +11,12 @@ ytdl_format_options = {
     'restrictfilenames': True,
     'noplaylist': True,
     'nocheckcertificate': True,
-    'ignoreerrors': False,
+    'ignoreerrors': True,
     'logtostderr': False,
     'quiet': True,
+    'verbose': False,
     'no_warnings': True,
-    'default_search': 'scsearch',
+    'default_search': 'auto',
     'source_address': '0.0.0.0'
 }
 
@@ -38,11 +40,19 @@ class Playlist:
     async def add(self, song_url: str, voice_client: discord.VoiceClient, user=None):
         try:
             song_player = await voice_client.create_ytdl_player(song_url, ytdl_options=ytdl_format_options)
-        except:
-            return False
+        except youtube_dl.DownloadError:
+            return youtube_dl.DownloadError
+        except youtube_dl.SameFileError:
+            return youtube_dl.SameFileError
+        except youtube_dl.utils.ExtractorError:
+            return youtube_dl.utils.ExtractorError
+        except youtube_dl.utils.UnavailableVideoError:
+            return youtube_dl.utils.UnavailableVideoError
+        except youtube_dl.utils.UnsupportedError:
+            return youtube_dl.utils.UnsupportedError
         user_name = "********"
         if user is not None:
-            user_name = "__" + user.display_name + "__"
+            user_name = user.display_name
         song = Song(song_player, song_player.url, song_player.title, song_player.uploader, user_name)
         await self.__queue.put(song)
         return song
