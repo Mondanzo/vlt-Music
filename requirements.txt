@@ -1,0 +1,2 @@
+youtube_dl>=2016.12.12
+discord.py>=0.15.0

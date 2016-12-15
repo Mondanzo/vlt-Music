@@ -114,7 +114,7 @@ class Main(discord.Client):
                 pass
         else:
             self.is_playing = False
-            coru = self.change_presence(status=discord.Status.idle, game=discord.Game())
+            coru = self.change_presence(status=discord.Status.idle, game=discord.Game(name="{}help".format(self.p)))
             fat = asyncio.run_coroutine_threadsafe(coru, self.loop)
             try:
                 fat.result()
@@ -230,7 +230,8 @@ Admin Commands:
                                                                    song.title[0],
                                                                    msg.author.mention)))
                     else:
-                        song = await self.queue.add(args[0], self.voiceClient, msg.author)
+                        song = await self.queue.add(msg.content.replace("{}play ".format(self.p)), self.voiceClient,
+                                                    msg.author)
                         if isinstance(song, music.Song):
                             if self.is_playing is False:
                                 self.loop.create_task(self._play_song())
@@ -298,7 +299,7 @@ Admin Commands:
             self.log.print("[WARNING] You're Bot isn't connected to any server! Why?")
         await self._auto_join()
         self.role = self._get_admin_role()
-        await self.change_presence(status=discord.Status.idle, game=discord.Game())
+        await self.change_presence(status=discord.Status.idle, game=discord.Game(name="{}help".format(self.p)))
         # ############# #
         # Advertisement #
         # ############# #

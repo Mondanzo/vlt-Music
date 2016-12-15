@@ -48,8 +48,6 @@ class Playlist:
             return youtube_dl.utils.ExtractorError
         except youtube_dl.utils.UnavailableVideoError:
             return youtube_dl.utils.UnavailableVideoError
-        except youtube_dl.utils.UnsupportedError:
-            return youtube_dl.utils.UnsupportedError
         user_name = "********"
         if user is not None:
             user_name = user.display_name
