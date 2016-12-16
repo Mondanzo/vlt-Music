@@ -230,7 +230,7 @@ Admin Commands:
                                                                    song.title[0],
                                                                    msg.author.mention)))
                     else:
-                        song = await self.queue.add(msg.content.replace("{}play ".format(self.p)), self.voiceClient,
+                        song = await self.queue.add(msg.content.replace("{}play ".format(self.p), ""), self.voiceClient,
                                                     msg.author)
                         if isinstance(song, music.Song):
                             if self.is_playing is False:
