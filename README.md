@@ -3,7 +3,7 @@ A Music Bot for Discord
 
 ## Compossible
 - [x] On Windows - No Bugs founded
-- [ ] On Linux - Random Crash caused by async (I hate async -.-)
+- [x] On Linux - Works fine. (Excepting for me ;-;)
 - [ ] On Mac - Not Tested
 
 # Setup
