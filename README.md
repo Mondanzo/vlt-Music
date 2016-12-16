@@ -62,12 +62,12 @@ Replace the Zero's with the Id of the Voice Channel.
 A list of all commands
 
 ### User Commands
-`help` - Show's the help
-`play <song>` - Add's a song to the playlist
-`queue` - Show's the current queue
-`np`/`status` - Show's the currently song (When a song is playing)
-`skip` - Doesn't work yet. Ignore this, okay?
+- `help` - Show's the help
+- `play <song>` - Add's a song to the playlist
+- `queue` - Show's the current queue
+- `np`/`status` - Show's the currently song (When a song is playing)
+- `skip` - Doesn't work yet. Ignore this, okay?
 
 ### Admin Commands
-`connect <Channel Name>` - Connect the Music Bot to a voice channel.
-`shutdown` - Turns this damn awezome Music Bot off!
+- `connect <Channel Name>` - Connect the Music Bot to a voice channel.
+- `shutdown` - Turns this damn awezome Music Bot off!
