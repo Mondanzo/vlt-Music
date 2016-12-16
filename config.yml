@@ -7,7 +7,7 @@
 ############################################
 
 # Replace the example Token with YOUR token otherwise the Bot won't work!  [String]
-Token: "MTY2NjM4NjA4NzM5MDc0MDQ5.CzMDHQ.-w3oTMORJXX_UhGM7qtask4dgXk"
+Token: "Token ;-;"
 
 # Enter here the Opus File, On Windows it is usally libopus-0.dll on Linux it is usally libopus.so.0 [String]
 Opusfile: "libopus-0.dll"
@@ -16,7 +16,7 @@ Opusfile: "libopus-0.dll"
 Prefix: "??"
 
 # Please enter here the Role a User need for the Admin Commands [String]
-AdminRole: "Developer"
+AdminRole: "DJ"
 
 # Enable Sites to use songs from. Split them by ; Example (http://youtube.com/;https://soundcloud.com/) [String]
 # Leave it empty to allow every site!
