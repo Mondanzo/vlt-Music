@@ -12,7 +12,7 @@ with open("config.yml", "r") as file:
     cfg = yaml.load(file)
     Reconnect = cfg['AutoReconnect']
 
-# TODO: Add Warn Function, implement API, Skip Command, fix this crazy bug where all values are Tuples
+# TODO: Add Warn Function, implement API, Current Time of the song, fix this crazy bug where all values are Tuples
 
 
 class Main(discord.Client):
@@ -23,7 +23,8 @@ class Main(discord.Client):
         if discord.opus.is_loaded():
             self.log.print("[INFO] Opus loaded successfully!")
         else:
-            self.log.print("[ERROR] An error occured while loading opus! The bot won't be able to play music!\nShutting down!")
+            self.log.print("[ERROR] An error occured while loading opus!"
+                           " The bot won't be able to play music!\nShutting down!")
             exit(1)
 
     # Start the bot
@@ -32,8 +33,7 @@ class Main(discord.Client):
 
     # Overriden Functions
     async def delete_message(self, message: discord.Message):
-        if message.channel.permissions_for(message.author) == discord.Permissions.manage_messages:
-            await super().delete_message(message)
+        await super().delete_message(message)
 
     # Load Allowed Sites
     def _load_allowed_sites(self):
@@ -56,8 +56,13 @@ class Main(discord.Client):
         min_skips = 0
         for u in self.voiceClient.channel.voice_members:
             if not u.bot:
-                min_skips += 1
+                if not u.deaf:
+                    min_skips += 1
         return int(min_skips / self.skips)
+
+    def _get_time(self):
+        m, s = divmod(self.stream_player.duration, 60)
+        return "{}:{}".format(m, s)
 
     async def _auto_join(self):
         await super().wait_until_ready()
@@ -77,18 +82,20 @@ class Main(discord.Client):
             self.log.print("[INFO] Autojoin is deactivated! skipping it")
 
     # Delete the message after a delay
-    async def ddelete_message(self, message, delay=15):
+    async def ddelete_message(self, message, delay=10):
         await asyncio.sleep(delay)
         await self.delete_message(message)
 
     # Play next Song
     async def _play_song(self):
+        print("_play_song()")
         if self.stream_player is not None and not self.stream_player.is_done():
             self.log.print("Last Streamplayer wasn't done! Stopping it now!")
             self.stream_player.stop()
         next_song = await self.queue.get_next()
         self.stream_player = next_song.player[0]
         self.timer = time.clock()
+        self.skip_list = []
         setattr(self.stream_player, "after", self._next_song)
         self.log.print("Start playing song...")
         self.is_playing = True
@@ -100,6 +107,7 @@ class Main(discord.Client):
 
     # Next Song
     def _next_song(self):
+        print("_next_song()")
         if len(self.queue) >= 1:
             if not self.stream_player.is_done():
                 self.log.print("Streamplayer is not done! Stopping it now!")
@@ -110,7 +118,7 @@ class Main(discord.Client):
             try:
                 fut.result()
             except:
-                # an error happened sending the message
+                self.log.print("Error while trying to play next song!")
                 pass
         else:
             self.is_playing = False
@@ -142,6 +150,7 @@ class Main(discord.Client):
         self.log = Logger("logs/")
         self.conditions = asyncio.Condition()
         self.queue = music.Playlist()
+        self.__version__ = '2.7.0'
 
         # Get the settings from the config.
         self.skips = self.cfg['ReqSkips']
@@ -149,7 +158,6 @@ class Main(discord.Client):
         self.volume = self.cfg['Volume']
         self.allowedLinks = self._load_allowed_sites()
         self._load_opus()
-
         self.__start_bot(self.cfg['Token'], bot=True)
 
     # On message event (Commands)
@@ -167,55 +175,69 @@ class Main(discord.Client):
 
         # User commands without Voice Client
         if cmd == self.p + "help":
+            await self.delete_message(msg)
             await self.send_message(msg.author,
-"""--------------------------------- HELP ------------------------------------------
-User Commands:
-- {0}help - Shows this Help.
-- {0}play <Song Url> - adds a Song to the playlist from a link.
-~~- {0}skip - Vote to skip the current song. You can only skip one time per song.~~
-- {0}queue - Shows the current queue.
-- {0}np - Shows the currently playing song (If a song is playing)
-- {0}status - Shows the currently playing song (If a song is playing)
+                                    """--------------------------------- HELP ------------------------------------------
+                                    User Commands:
+                                    - {0}help - Shows this Help.
+                                    - {0}play <Song Url> - adds a Song to the playlist from a link.
+                                    ~~- {0}skip - Vote to skip the current song. You can only skip one time per song.~~
+                                    - {0}queue - Shows the current queue.
+                                    - {0}np - Shows the currently playing song (If a song is playing)
+                                    - {0}status - Shows the currently playing song (If a song is playing)
 
-Admin Commands:
-- {0}shutdown{0} - Turns the bot off.
-- {0}connect <Channel Name> - Connect the bot to the entered channel.
-- {0}disconnect - Closes all connections and stop playing music.
-                           """.format(self.p))
+                                    Admin Commands:
+                                    - {0}shutdown{0} - Turns the bot off.
+                                    - {0}connect <Channel Name> - Connect the bot to the entered channel.
+                                    - {0}disconnect - Closes all connections and stop playing music.
+                                                               """.format(self.p))
             await self.ddelete_message(await self.send_message(msg.channel,
-                                                   ":information_source: Check your private chat! :information_source:"))
+                                                               ":information_source: Check your private chat!"
+                                                               " :information_source:"))
         elif cmd == self.p + "version":
+            await self.delete_message(msg)
             await self.ddelete_message(await self.send_message(msg.channel,
                                                                "Your using the vlt. Music Bot" +
                                                                " \nby Mondanzo\nVersion: {}".format(
-                                                                   "2.0"
+                                                                   self.__version__
                                                                )))
         # Admin commands without Voice
         elif cmd == self.p + "shutdown" + self.p and self.role in msg.author.roles:
+            await self.delete_message(msg)
             await self.send_message(msg.channel, "Shutting down! Goodbye :hand_splayed:")
             self.log.print("[INFO] Shutting down...")
             await super().logout()
             exit(1)
         elif cmd == self.p + "connect" and self.role in msg.author.roles:
+            await self.delete_message(msg)
             if self.is_voice_connected(msg.server):
-                await self.ddelete_message(self.send_message(msg.channel, "[ERROR] I'm already connected to a channel!"))
+                await self.ddelete_message(self.send_message(msg.channel, "[ERROR]"
+                                                                          " I'm already connected to a channel!"))
             if len(args) >= 1:
                 await self.delete_message(msg)
                 channel = utils.get_channel_by_name(msg.server, ''.join(args), stype=discord.ChannelType.voice)
                 if not channel:
                     await self.ddelete_message(await self.send_message(msg.channel,
-                                                                 "[ERROR] Channel was not found! " +
-                                                                 ":negative_squared_cross_mark:"))
+                                                                       "[ERROR] Channel was not found! " +
+                                                                       ":negative_squared_cross_mark:"))
                     return
                 self.voiceClient = await super().join_voice_channel(channel)
                 if self.is_voice_connected(msg.server):
                     await self.ddelete_message(
                         await self.send_message(msg.channel, "[INFO] Connected successfully! :ok_hand:"))
 
-        # User Commands WITH VoiceClient
+        # Commands WITH VoiceClient
         elif self.voiceClient is not None:
+            # Admin Commands
+            if cmd == self.p + "disconnect":
+                await self.delete_message(msg)
+                await self.voiceClient.disconnect()
+
+            # User Commands
+
             # play Command (Adds Songs)
             if cmd == self.p + "play":
+                await self.delete_message(msg)
                 if len(args) >= 1:
                     if self.allowedLinks is not None:
                         if any(args[0].startswith(x) for x in self.allowedLinks):
@@ -223,37 +245,34 @@ Admin Commands:
                             if isinstance(song, music.Song):
                                 if self.is_playing is False:
                                     self.loop.create_task(self._play_song())
-                                await self.delete_message(msg)
                                 await self.ddelete_message(
-                                    await super().send_message(msg.channel,
+                                    await self.ddelete_message(await super().send_message(msg.channel,
                                                                "Added your Song {} successfully! {}".format(
                                                                    song.title[0],
-                                                                   msg.author.mention)))
+                                                                   msg.author.mention))), delay=5)
                     else:
                         song = await self.queue.add(msg.content.replace("{}play ".format(self.p), ""), self.voiceClient,
                                                     msg.author)
                         if isinstance(song, music.Song):
                             if self.is_playing is False:
                                 self.loop.create_task(self._play_song())
-                            await self.delete_message(msg)
                             await self.ddelete_message(
                                 await super().send_message(msg.channel,
                                                            "Added your Song {} successfully! {}".format(
                                                                song.title[0],
-                                                               msg.author.mention)))
+                                                               msg.author.mention)), delay=5)
                         else:
-                            await self.delete_message(msg)
                             await self.ddelete_message(await super().send_message(msg.channel,
                                                                                   "[ERROR] Couldn't add your song!" +
                                                                                   "\nUnknown error"
-                                                                                  .format(self.p)))
+                                                                                  .format(self.p)), delay=5)
                 else:
-                    await self.delete_message(msg)
                     await self.ddelete_message(await super().send_message(msg.channel,
                                                                           "[ERROR] Wrong Command! Use: `{}play <Link>`!"
                                                                           .format(self.p)))
             # queue Command
             elif cmd == self.p + "queue":
+                await self.delete_message(msg)
                 if not self.queue.empty():
                     queue = ""
                     number = 1
@@ -267,23 +286,40 @@ Admin Commands:
 
             # Skip Command
             elif cmd == self.p + "skip":
-                pass
-                if msg.author.id not in self.skip_list:
+                await self.delete_message(msg)
+                if self._get_req_skips() <= len(self.skip_list):
+                    setattr(self.stream_player, "after", None)
+                    self.stream_player.stop()
+                    if not self.queue.empty():
+                        self.loop.create_task(self._play_song())
+                    else:
+                        self.is_playing = False
+                        await self.change_presence(status=discord.Status.idle,
+                                                   game=discord.Game(name="{}help".format(self.p)))
+                    await self.ddelete_message(await super().send_message(msg.channel,
+                                                                          "Enough user voted to skip!\n"
+                                                                          "**Skipping NOW**"), delay=5)
+                elif msg.author.id not in self.skip_list:
                     await super().send_message(msg.channel,
                                                "{} voted to Skip! **{}/{} want to Skip**".format(msg.author.mention,
                                                                                                  self._get_req_skips(),
                                                                                                  len(self.skip_list)))
                     self.skip_list.append(msg.author.id)
                 else:
-                    await super().send_message(msg.channel, "**{}/{} want to Skip**")
+                    await self.ddelete_message(await super().send_message(msg.channel, "**{}/{} want to Skip!**"))
 
             # Now Playing Command (Status)
             elif cmd == self.p + "np" or cmd == self.p + "status":
+                await self.delete_message(msg)
                 if self.stream_player.is_playing():
                     await self.ddelete_message(await super().send_message(msg.channel,
-                                                                          "Now playing **{}** by _{}_! [00s:01m]\n{}".format(
+                                                                          "Now playing **{}** by _{}_! [{}:{}]"
+                                                                          "\n{}".format(
                                                                               self.stream_player.title,
-                                                                              self.stream_player.uploader)))
+                                                                              self.stream_player.uploader,
+                                                                              "-/-",
+                                                                              self._get_time(),
+                                                                              self.stream_player.url)))
 
         # ############## #
         # OnReady Method #
