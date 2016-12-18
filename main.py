@@ -42,8 +42,6 @@ class Main(discord.Client):
         else:
             return self.cfg['AllowedSites'].split(';')
 
-    # Autojoin feature
-
     def _get_admin_role(self):
         for s in self.servers:
             for r in s.roles:
@@ -65,9 +63,11 @@ class Main(discord.Client):
         m, s = divmod(time, 60)
         return "{}:{}".format(m, s)
 
+    # Autojoin feature
+
     async def _auto_join(self):
         await super().wait_until_ready()
-        if self.cfg['Autojoin'] is True:
+        if self.cfg['Autojoin']:
             self.log.print("[INFO] Autojoin is active!")
             auto_channel = self.get_channel(self.cfg['AutojoinChannel'])
             if auto_channel is not None:
@@ -81,6 +81,12 @@ class Main(discord.Client):
                 self.log.print("[AUTOJOIN] Channel was not found! Skipping Autojoin")
         else:
             self.log.print("[INFO] Autojoin is deactivated! skipping it")
+
+    # Autoplaylist Feature
+    async def _auto_playlist(self):
+        if self.cfg['AutoPlaylist']:
+            self.log.print("[INFO] AutoPlaylist is active!")
+            self.playlist = list()
 
     # Delete the message after a delay
     async def ddelete_message(self, message, delay=10):
@@ -287,7 +293,7 @@ class Main(discord.Client):
 
             # Skip Command
             elif cmd == self.p + "skip":
-                if not msg.author.id in self.voiceClient.channel.voice_members:
+                if msg.author not in self.voiceClient.channel.voice_members:
                     return
                 await self.delete_message(msg)
                 if msg.author.id not in self.skip_list:
