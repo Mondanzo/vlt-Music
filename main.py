@@ -60,8 +60,9 @@ class Main(discord.Client):
                     min_skips += 1
         return int(min_skips / self.skips)
 
-    def _get_time(self):
-        m, s = divmod(self.stream_player.duration, 60)
+    @staticmethod
+    def _get_time(time):
+        m, s = divmod(time, 60)
         return "{}:{}".format(m, s)
 
     async def _auto_join(self):
@@ -94,7 +95,7 @@ class Main(discord.Client):
             self.stream_player.stop()
         next_song = await self.queue.get_next()
         self.stream_player = next_song.player[0]
-        self.timer = time.clock()
+        self.timer = utils.get_time_in_seconds()
         self.skip_list = []
         setattr(self.stream_player, "after", self._next_song)
         self.log.print("Start playing song...")
@@ -181,7 +182,7 @@ class Main(discord.Client):
                                     User Commands:
                                     - {0}help - Shows this Help.
                                     - {0}play <Song Url> - adds a Song to the playlist from a link.
-                                    ~~- {0}skip - Vote to skip the current song. You can only skip one time per song.~~
+                                    - {0}skip - Vote to skip the current song. You can only skip one time per song.
                                     - {0}queue - Shows the current queue.
                                     - {0}np - Shows the currently playing song (If a song is playing)
                                     - {0}status - Shows the currently playing song (If a song is playing)
@@ -197,7 +198,7 @@ class Main(discord.Client):
         elif cmd == self.p + "version":
             await self.delete_message(msg)
             await self.ddelete_message(await self.send_message(msg.channel,
-                                                               "Your using the vlt. Music Bot" +
+                                                               "You're using the vlt. Music Bot" +
                                                                " \nby Mondanzo\nVersion: {}".format(
                                                                    self.__version__
                                                                )))
@@ -286,7 +287,22 @@ class Main(discord.Client):
 
             # Skip Command
             elif cmd == self.p + "skip":
+                if not msg.author.id in self.voiceClient.channel.voice_members:
+                    return
                 await self.delete_message(msg)
+                if msg.author.id not in self.skip_list:
+                    self.skip_list.append(msg.author.id)
+                    self.ddelete_message(await super().send_message(msg.channel,
+                                                                    "{} voted to Skip! **{}/{} want to Skip**".format(
+                                                                        msg.author.mention,
+                                                                        len(self.skip_list),
+                                                                        self._get_req_skips()
+                                                                    )))
+                else:
+                    self.ddelete_message(
+                        await super().send_message(msg.channel, "**{}/{} want to Skip!**".format(len(self.skip_list),
+                                                                                                 self._get_req_skips()))
+                                                                                                )
                 if self._get_req_skips() <= len(self.skip_list):
                     setattr(self.stream_player, "after", None)
                     self.stream_player.stop()
@@ -296,29 +312,25 @@ class Main(discord.Client):
                         self.is_playing = False
                         await self.change_presence(status=discord.Status.idle,
                                                    game=discord.Game(name="{}help".format(self.p)))
-                    await self.ddelete_message(await super().send_message(msg.channel,
-                                                                          "Enough user voted to skip!\n"
-                                                                          "**Skipping NOW**"), delay=5)
-                elif msg.author.id not in self.skip_list:
-                    await super().send_message(msg.channel,
-                                               "{} voted to Skip! **{}/{} want to Skip**".format(msg.author.mention,
-                                                                                                 self._get_req_skips(),
-                                                                                                 len(self.skip_list)))
-                    self.skip_list.append(msg.author.id)
-                else:
-                    await self.ddelete_message(await super().send_message(msg.channel, "**{}/{} want to Skip!**"))
+                    await self.ddelete_message(await
+                                               super().send_message(msg.channel,
+                                                                    "Enough users voted to skip!\n"
+                                                                    "**Skipping NOW**"), delay=5)
 
             # Now Playing Command (Status)
             elif cmd == self.p + "np" or cmd == self.p + "status":
                 await self.delete_message(msg)
                 if self.stream_player.is_playing():
                     await self.ddelete_message(await super().send_message(msg.channel,
-                                                                          "Now playing **{}** by _{}_! [{}:{}]"
+                                                                          "Now playing **{}** by _{}_! [{}-{}]"
                                                                           "\n{}".format(
                                                                               self.stream_player.title,
                                                                               self.stream_player.uploader,
-                                                                              "-/-",
-                                                                              self._get_time(),
+                                                                              self._get_time(
+                                                                                  utils.get_time_in_seconds() -
+                                                                                  self.timer),
+                                                                              self._get_time(
+                                                                                  self.stream_player.duration),
                                                                               self.stream_player.url)))
 
         # ############## #
