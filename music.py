@@ -20,15 +20,6 @@ ytdl_format_options = {
 }
 
 
-class Song:
-    def __init__(self, player, url, title, uploader, user):
-        self.player = player,
-        self.url = url,
-        self.title = title,
-        self.uploader = uploader,
-        self.user = user
-
-
 class Playlist:
 
     # Init a playlist object
@@ -50,13 +41,15 @@ class Playlist:
         user_name = "********"
         if user is not None:
             user_name = user.display_name
-        song = Song(song_player, song_player.url, song_player.title, song_player.uploader, user_name)
+        song = {"player": None, "url": song_player.url, "title": song_player.title,
+                "uploader": song_player.uploader, "user": user_name}
         await self.__queue.put(song)
         return song
 
     # Get next song and delete it
-    async def get_next(self):
+    async def pop(self, voice_client: discord.VoiceClient):
         item = await self.__queue.get()
+        item['player'] = await voice_client.create_ytdl_player(item['url'], ytdl_options=ytdl_format_options)
         return item
 
     # Get if queue is empty
