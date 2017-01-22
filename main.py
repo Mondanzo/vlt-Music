@@ -189,7 +189,7 @@ class Main(discord.Client):
         if cmd == self.p + "help":
             await self.delete_message(msg)
             await self.send_message(msg.author,
-                                    """--------------------------------- HELP ------------------------------------------
+                                    """--------------------------------- HELP ----------------------------------------
                                     User Commands:
                                     - {0}help - Shows this Help.
                                     - {0}play <Song Url> - adds a Song to the playlist from a link.
@@ -197,12 +197,13 @@ class Main(discord.Client):
                                     - {0}queue - Shows the current queue.
                                     - {0}np - Shows the currently playing song (If a song is playing)
                                     - {0}status - Shows the currently playing song (If a song is playing)
-
                                     Admin Commands:
                                     - {0}shutdown{0} - Turns the bot off.
                                     - {0}connect <Channel Name> - Connect the bot to the entered channel.
                                     - {0}disconnect - Closes all connections and stop playing music.
                                     - {0}volume <Number between 0 and 2> - Change the volume of the player.
+                                    - {0}warn - Warn the user that the bot is going down after the playlist.
+                                    - {0}shuffle - Shuffle the whole queue.
                                                                """.format(self.p))
             await self.ddelete_message(await self.send_message(msg.channel,
                                                                ":information_source: Check your private chat!"
