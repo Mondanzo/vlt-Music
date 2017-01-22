@@ -113,9 +113,14 @@ class Main(discord.Client):
         self.log.print("Start playing song...")
         self.is_playing = True
         self.stream_player.volume = self.volume
-        await self.change_presence(status=discord.Status.online,
-                                   game=discord.Game(name=self.stream_player.title, url=self.stream_player.url,
-                                                     type=1))
+        if self.requests:
+            await self.change_presence(status=discord.Status.online,
+                                       game=discord.Game(name=self.stream_player.title, url=self.stream_player.url,
+                                                         type=1))
+        else:
+            await self.change_presence(status=discord.Status.dnb,
+                                       game=discord.Game(name=self.stream_player.title, url=self.stream_player.url,
+                                                         type=1))
         self.stream_player.start()
 
     # Next Song
@@ -135,6 +140,10 @@ class Main(discord.Client):
                 pass
         else:
             self.is_playing = False
+            if self.auto_shutdown:
+                self.log.print("[INFO] Shutting down...")
+                super().logout()
+                exit(1)
             coru = self.change_presence(status=discord.Status.idle, game=discord.Game(name="{}help".format(self.p)))
             fat = asyncio.run_coroutine_threadsafe(coru, self.loop)
             try:
@@ -153,6 +162,8 @@ class Main(discord.Client):
             self.cfg = yaml.load(config)
 
         # Inti default variables.
+        self.requests = True
+        self.auto_shutdown = False
         self.voiceClient = None
         self.info_channel = None
         self.stream_player = None
@@ -162,7 +173,7 @@ class Main(discord.Client):
         self.log = Logger("logs/")
         self.conditions = asyncio.Condition()
         self.queue = music.Playlist()
-        self.__version__ = '2.8.0'
+        self.__version__ = '2.8.1'
 
         # Get the settings from the config.
         self.skips = self.cfg['ReqSkips']
@@ -203,6 +214,7 @@ class Main(discord.Client):
                                     - {0}disconnect - Closes all connections and stop playing music.
                                     - {0}volume <Number between 0 and 2> - Change the volume of the player.
                                     - {0}warn - Warn the user that the bot is going down after the playlist.
+                                    - {0}requests - switch requests on and off.
                                     - {0}shuffle - Shuffle the whole queue.
                                                                """.format(self.p))
             await self.ddelete_message(await self.send_message(msg.channel,
@@ -222,6 +234,16 @@ class Main(discord.Client):
             self.log.print("[INFO] Shutting down...")
             await super().logout()
             exit(1)
+
+        elif cmd == self.p + "requests" and self.role in msg.author.roles:
+            await self.delete_message(msg)
+            if self.requests:
+                self.requests = False
+                self.log.print("[INFO] Requests disabled!")
+            else:
+                self.requests = True
+                self.log.print("[INFO] Requests enabled!")
+
         elif cmd == self.p + "connect" and self.role in msg.author.roles:
             await self.delete_message(msg)
             if self.is_voice_connected(msg.server):
@@ -258,6 +280,8 @@ class Main(discord.Client):
 
             elif cmd == self.p + "warn" and self.role in msg.author.roles:
                 await self.delete_message(msg)
+                self.requests = False
+                Reconnect = False
                 await self.ddelete_message(
                     await self.send_message(msg.channel, "WARNING: After the playlist finished the bot is turning off!")
                     , delay=20)
@@ -267,6 +291,8 @@ class Main(discord.Client):
             # play Command (Adds Songs)
             if cmd == self.p + "play":
                 await self.delete_message(msg)
+                if not self.requests:
+                    await self.ddelete_message(self.send_message(msg.channel, "**[ERROR]** Requests are disabled!"))
                 if len(args) >= 1:
                     if self.allowedLinks is not None:
                         if any(args[0].startswith(x) for x in self.allowedLinks):
@@ -353,6 +379,9 @@ class Main(discord.Client):
 
             # Now Playing Command (Status)
             elif cmd == self.p + "np" or cmd == self.p + "status":
+                url = discord.Embed.Empty
+                if self.stream_player.url.startswith("http"):
+                    url = self.stream_player.url
                 await self.delete_message(msg)
                 if self.stream_player.is_playing():
                     msg_np = discord.Embed(title=self.stream_player.title,
@@ -361,10 +390,9 @@ class Main(discord.Client):
                                                utils.get_time_in_seconds() -
                                                self.timer),
                                                self._get_time(self.stream_player.duration)),
-                                           url=self.stream_player.url,
+                                           url=url,
                                            color=discord.Color.blue())
                     msg_np.set_author(name="Now playing...")
-                    msg_np.set_thumbnail(url=self.stream_player.url)
                     msg_np.set_footer(text=self.user.name, icon_url=self.user.avatar_url)
                     await self.ddelete_message(await super().send_message(msg.channel, embed=msg_np))
 
