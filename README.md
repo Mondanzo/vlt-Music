@@ -21,7 +21,7 @@ Explanation of the whole `config.yml`
 
 `Token: "..."`
 Here you replace this crazy Stuff with your bot token that you've got from 
-<url>https://discordapps.com/developers/applications</url>
+<url>https://discordapp.com/developers/applications</url>
 
 `Opusfile: "libopus-0.dll"`
 Here you replace the OpusFile.
@@ -66,7 +66,7 @@ A list of all commands
 - `play <song>` - Add's a song to the playlist
 - `queue` - Show's the current queue
 - `np`/`status` - Show's the currently song (When a song is playing)
-- `skip` - Doesn't work yet. Ignore this, okay?
+- `skip` - Vote to skip, kay?
 
 ### Admin Commands
 - `connect <Channel Name>` - Connect the Music Bot to a voice channel.
