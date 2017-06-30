@@ -1,73 +1,73 @@
 # vlt-Music
-A Music Bot for Discord
+A music bot for Discord.
 
-## Compossible
-- [x] On Windows - No Bugs founded
-- [x] On Linux - Works fine. (Excepting for me ;-;)
-- [ ] On Mac - Not Tested
+## Compatibility
+- [x] Windows - No Bugs found
+- [x] Linux - Works fine
+- [ ] Mac - Not Tested
 
 # Setup
 A step-by-step tutorial to setup the bot.
 
 1. Download this Repository
-2. Install Python 3.5 (It's important that you use 3.5!)
+2. Install Python 3.5 (it's important that you use 3.5!)
 3. Install the requirements (Run `pip install -r requirements.txt`)
-4. Edit the `config.yml`.
+4. Edit `config.yml`.
 5. Run Start.bat or Start.sh
 6. Enjoy
 
 # Configuration
-Explanation of the whole `config.yml`
+Explanation of `config.yml`
 
 `Token: "..."`
-Here you replace this crazy Stuff with your bot token that you've got from 
-<url>https://discordapp.com/developers/applications</url>
+Insert the API token from [Discord](https://discordapp.com/developers/applications)
 
 `Opusfile: "libopus-0.dll"`
-Here you replace the OpusFile.
-on Windows, don't change it!
+Opusfile, not required for Windows.
 On Linux, change it to `libopus.so.0`, you also need to install FFMPEG if you haven't already.
 
 `Prefix: "??"`
 Replace this with your Prefix!
 Example: `Prefix: "vlt."`
+So the commands would be
 `vlt.help, vlt.play <Song>, vlt.np`
 
 `AdminRole: "DJ"`
-Replace this with the role name that should can use the Admin Commands. (See Commmands->Admin Commands)
+Replace this with the role name that shall be able to use the Admin Commands. (See Commmands->Admin Commands)
 
 `AllowedSites: ""`
 Add there starts of Url's to add and split them with a `;`
-WARNING: At the moment it's disable the search function!
+CAUTION: At the moment search function is disabled!
 
 `AutoReconnect: True`
-Set this to `True` if you want that your bot restarts on a crash, otherwise set it to `False`.
+Set this to `True` if you want your bot to restart on a crash.
 
 `Volume: 1.0`
-Change the Volume of the bot. (Normally it's 1.0)
-Be careful! At the moment you can't change it while the bot is online!
+Change the Volume of the bot on a range from `0.0` to `1.0`.
+You need to restart the bot to apply the changes!
 
 `ReqSkips: 2`
-Ignore this.
+You can ignore this for now.
 
 `Autojoin: False`
-If you want that you're bot joins automatically a channel, set this on True.
-This Feature is instable.
+If you want you're bot to join a channel automatically, set this to True.
+This Feature is unstable.
 
 `AutojoinChannel: "000000000000000"`
-Replace the Zero's with the Id of the Voice Channel.
+Replace the Zero's with the Id of the Voice Channel the bot should autojoin to.
 
 
 # Commands
-A list of all commands
+Documentation for availible commands.
 
 ### User Commands
-- `help` - Show's the help
-- `play <song>` - Add's a song to the playlist
-- `queue` - Show's the current queue
-- `np`/`status` - Show's the currently song (When a song is playing)
-- `skip` - Vote to skip, kay?
+- `help` - Show's the documentation
+- `play <song>` - Add a song to the playlist
+- `queue` - Show the current queue
+- `np`/`status` - Show's the currently song (while a song is playing)
+- `skip` - Vote to skip the current song
 
 ### Admin Commands
 - `connect <Channel Name>` - Connect the Music Bot to a voice channel.
-- `shutdown` - Turns this damn awezome Music Bot off!
+- `shutdown` - Shutdown the bot
+
