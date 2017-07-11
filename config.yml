@@ -9,8 +9,8 @@
 # Replace the example Token with YOUR token otherwise the Bot won't work!  [String]
 Token: "Token ;-;"
 
-# Enter here the Opus File, On Windows it is usally libopus-0.dll on Linux it is usally libopus.so.0 [String]
-Opusfile: "libopus-0.dll"
+# Enter here the Opus File, On Windows its libopus-0.x86.dll or libopus-0.x64.dll on Linux it is usally libopus.so.0 [String]
+Opusfile: "libopus-0x86.dll"
 
 # Set the Prefix of the Bot [String]
 Prefix: "??"
