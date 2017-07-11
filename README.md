@@ -26,7 +26,7 @@ Insert the API token from [Discord](https://discordapp.com/developers/applicatio
 ~~Opusfile, not required for Windows.~~ It is required.
 You need to change `config.yml` to the correct libary.
 On Linux, change it to `libopus.so.0`, you also need to install FFMPEG if you haven't already.
-
+You don't need to have `libopus.so.0` in the project directory.
 `Prefix: "??"`
 Replace this with your Prefix!
 Example: `Prefix: "vlt."`
