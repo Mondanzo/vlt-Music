@@ -446,7 +446,7 @@ class Main(discord.Client):
             self.log.print("[WARNING] You're Bot isn't connected to any server! Why?")
         await self._auto_join()
         self.role = self._get_admin_role()
-        await self.change_presence(status=discord.Status.idle, game=discord.Game(name="{}help".format(self.p)))
+        await self.change_presence(status=discord.Status.idle, game=discord.Game(name="{0}help".format(self.p)))
         # ############# #
         # Advertisement #
         # ############# #
