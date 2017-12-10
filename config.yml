@@ -11,7 +11,7 @@
 Version: 3.0.0
 
 # Replace the example Token with YOUR token otherwise the Bot won't work!  [String]
-Token: "u8vuj4twozZnnBvUtNrrbRTl2zH2wezlE7BGWSJprtNNoo1SEZ4sYnhDKS0jIMxnWizn2SU7DR7epwp2zTl3I173PLRaP0Te2vmQFl9TjdYXck0"
+Token: "Mzg4NzUzNzk0MDU5NDY4ODEw.DQ6jFw.ERoVaRftArsCuskYYA-eobLr9do"
 
 # Set the Prefix of the Bot [String]
 Prefix: "??"
@@ -32,5 +32,5 @@ ReqSkips: 2
 # Activate the Autojoin Feature [True/False]
 Autojoin: False
 
-# Set the ID of the Voice Channel to use Autojoin [String/ID]
+# Set the ID of the Voice Channel to use Autojoin [String/ID/Snowflake]
 AutojoinChannel: "000000000000000"
