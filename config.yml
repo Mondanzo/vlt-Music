@@ -1,0 +1,36 @@
+############################################
+#            vlt. Music 3.0                #
+#              by Mondanzo                 #
+#      licensed under the MIT-license      #
+############################################
+#            CONFIGURATION FILE            #
+############################################
+
+# Config Version !!DO NOT CHANGE!!
+# If you change this it might happen that your Config gets resetted!
+Version: 3.0.0
+
+# Replace the example Token with YOUR token otherwise the Bot won't work!  [String]
+Token: "u8vuj4twozZnnBvUtNrrbRTl2zH2wezlE7BGWSJprtNNoo1SEZ4sYnhDKS0jIMxnWizn2SU7DR7epwp2zTl3I173PLRaP0Te2vmQFl9TjdYXck0"
+
+# Set the Prefix of the Bot [String]
+Prefix: "??"
+
+# Please enter here the Role a User need for the Admin Commands [String]
+AdminRole: "DJ"
+
+# Base Volume; Here you can change the default Base Volume! [Float (0.0 {0%} - 2.0 {200%}]
+Volume: 1.0
+
+# Required Skips; Change the number to change the value to divide. [Int]
+ReqSkips: 2
+
+###################
+# Autojoin System #
+###################
+
+# Activate the Autojoin Feature [True/False]
+Autojoin: False
+
+# Set the ID of the Voice Channel to use Autojoin [String/ID]
+AutojoinChannel: "000000000000000"
